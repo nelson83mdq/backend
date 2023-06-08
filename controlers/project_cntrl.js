@@ -29,16 +29,6 @@ var controller = {
         project.lang = params.lang;
         project.image = null;
         
-        /* //deprecated
-        project.save((err, projectStored) => {
-            if (err) return res.status(500).send({message: 'Error al guardar documento.'});
-
-            if (!projectStored) return res.status(404).send({message:'No se pudo guardar el proyecto'});
-
-            return res.status(200).send({project: projectStored});
-        });
-        */
-
         try{
             let projectStored = project.save();
             console.log('guardado completo');
@@ -74,8 +64,41 @@ var controller = {
             }).catch((err)=>{
                 console.log('error: ', err);
             })
-        }
+            //este metodo puede mejorarse
+        },
 
+        getProjects: function(req, res){
+            /*projectModel.find().exec((err, projects) =>{
+                if (err) return res.status(500).send({message: 'error al devolver datos'});
+                if(!projects) return res.status(404).send({message:'no hay projectos listados'});
+                return res.status(200).send({ projects });
+            })*/
+            projectModel.find()
+                .then((projects)=>{
+                    console.log('then..../n');
+                    if (!projects) return res.status(404).send({message:'No se encontraron projectos en el servidor'});
+                    return res.status(200).send({projects});
+                })
+                .catch((err)=>{
+                    console.log('cathc...../n')
+                    return res.status(500).send({message:'Error al devolver los datos'})
+                })
+        },
+
+        updateProject: function(req, res){
+            let projectId = req.params['id'];
+            let update = req.body;
+            //console.log('update: ',update,'/n');
+            projectModel.findByIdAndUpdate(projectId, update)
+                .then((projectUpdated)=>{
+                    if(!projectUpdated) return res.status(404).send({message:'No se puede realizar la accion'});
+                    return res.status(200).send({project:projectUpdated});
+                })
+                .catch((err)=>{
+                    //console.log('error update: ',err,'/n');
+                    return res.status(500).send({message:'Ocurrio un error, ver la consola'});
+                })
+        },
 };
 
 module.exports = controller;
