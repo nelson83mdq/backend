@@ -75,12 +75,12 @@ var controller = {
             })*/
             projectModel.find()
                 .then((projects)=>{
-                    console.log('then..../n');
+                    //console.log('then..../n');
                     if (!projects) return res.status(404).send({message:'No se encontraron projectos en el servidor'});
                     return res.status(200).send({projects});
                 })
                 .catch((err)=>{
-                    console.log('cathc...../n')
+                    //console.log('cathc...../n')
                     return res.status(500).send({message:'Error al devolver los datos'})
                 })
         },
@@ -98,6 +98,42 @@ var controller = {
                     //console.log('error update: ',err,'/n');
                     return res.status(500).send({message:'Ocurrio un error, ver la consola'});
                 })
+        },
+
+        deleteProject: function(req, res){
+            let idProject = req.params['id'];
+            projectModel.findByIdAndRemove(idProject)
+            .then((projRemoved)=>{
+                if(!projRemoved) return res.status(404).send({
+                    message: 'Error el projecto no existe'
+                })
+                return res.status(200).send({
+                    project: projRemoved
+                })
+            })
+            .catch((err)=>{
+                console.log("Error -> ", err);
+                return res.status(500).send({
+                    message: 'Ocurrio un error, revise la consola de depuración'
+                }) ;
+            })
+        },
+
+        uploadImage: function(req, res){
+            //return res.status(200).send({message: 'nothing yet!!!'}) ;
+            let projectId = req.params['id'];
+            let fileName = 'Imagen aun no subida...';
+
+            if (req.files){
+                console.log(req.files);
+                return res.status(200).send({
+                    files: req.files
+                })
+            } else {
+                return res.status(200).send({
+                    message: fileName
+                })
+            }
         },
 };
 
