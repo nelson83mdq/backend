@@ -125,15 +125,33 @@ var controller = {
             let fileName = 'Imagen aun no subida...';
 
             if (req.files){
-                console.log(req.files);
-                return res.status(200).send({
-                    files: req.files
+                let filePath = req.files['image']['path']
+                /*console.log(req.files);
+                return res.status(404).send({
+                    message: filePath
+                })*/
+                
+                let fileSplit = filePath.split('\\');
+                console.log(fileSplit);
+                let file_Name = fileSplit[1];
+
+                projectModel.findById(projectId)
+                // necesito hacer un findByIdandUpdate!!!
+                .then((project)=>{
+                    if(!project) return res.status(404).send({message: 'Error, projecto no encontrado'});
+                    return res.status(200).send({
+                        image: project
+                    })
                 })
+                .catch((err)=>{
+                    console.log('error en el proyecto...');
+                })
+                // findById---------------
             } else {
                 return res.status(200).send({
                     message: fileName
                 })
-            }
+            }        
         },
 };
 
