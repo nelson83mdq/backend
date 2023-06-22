@@ -120,23 +120,16 @@ var controller = {
             })
         },
 
-        uploadImage: function(req, res){
-            //return res.status(200).send({message: 'nothing yet!!!'}) ;
+        uploadImage(req, res){
             let projectId = req.params['id'];
-            let file_Name = 'Imagen aun no subida...';
-            let extension = file_Name.split('\.')[0];
+            if (req.files){
+                let filePath = req.files['image']['path']          
+                let fileName = filePath.split('\\')[1];
+                let extension = fileName.split('\.')[1];
+                
+                if (extension == 'png' || extension == 'jpg' || extension == 'jpeg' || extension == 'gif'){
 
-            if (extension == 'png' || extension == 'jpg' || extension == 'jpeg' || extension == 'gif'){
-                // es un archivo de imagen
-                if (req.files){
-                    let filePath = req.files['image']['path']          
-                    let fileSplit = filePath.split('\\');
-                    file_Name = fileSplit[1]; //nombre del archivo
-    
-                    projectModel.findByIdAndUpdate(projectId , {image: file_Name}, {new: true})
-                    /* (filtro, valor a actualizar, new:True->)
-                    permite devolver el documento actualizado
-                    */
+                    projectModel.findByIdAndUpdate(projectId , {image: fileName}, {new: true})
                     .then((project)=>{
                         if(!project) return res.status(404).send({message: 'Error, projecto no encontrado'});
                         return res.status(200).send({
@@ -146,22 +139,18 @@ var controller = {
                     .catch((err)=>{
                         console.log('error en el proyecto...');
                     })
-                    // findById---------------
+
                 } else {
-                    return res.status(200).send({
-                        message: file_Name
-                    })
-                } 
+
+                    fs.unlink(filePath, (err)=>{
+                        return res.status(200).send({message: 'La extension no es valida'});
+                    }); 
+                }// extension
             } else {
-                //fs
-                console.log('extension no valida');
-                fs.unlink(filePath, (err)=>{
-                    return res.status(200).send({message: 'La extension no es valida'});
-                }); 
+                return res.status(200).send({message: fileName});
             }
 
-                   
-        },
+        }, // uploadImage
 };
 
 module.exports = controller;
