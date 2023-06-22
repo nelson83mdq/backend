@@ -14,30 +14,13 @@ app.use(bodyparser.urlencoded({extended:false}));
 app.use(bodyparser.json());
 
 //CORS
-
-//rutas
-/*
-app.get('/test', (req, res) =>{
-    res.status(200).send({
-        message: 'echo del servidor.'
-    });
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'Authorization, X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Allow-Request-Method');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
+    res.header('Allow', 'GET, POST, OPTIONS, PUT, DELETE');
+    next();
 });
-
-app.post('/test/:id', (req, res) =>{
-    console.log(req.headers.nombre);
-    console.log(req.query.web);
-    console.log(req.params.id);
-    res.status(200).send({
-        message: 'peticion POST...'
-    });
-});
-
-app.get('/', (req, res) =>{
-    res.status(200).send(
-        "<h1> :::   servidor corriendo   ::: </h1>"
-    );
-});
-*/
 
 //nuevas rutas
 app.use('/api', project_routes);

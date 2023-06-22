@@ -2,6 +2,7 @@
 
 
 var projectModel = require('../models/projects');
+var fs = require('fs'); // file system
 
 var controller = {
 //
@@ -89,7 +90,7 @@ var controller = {
             let projectId = req.params['id'];
             let update = req.body;
             //console.log('update: ',update,'/n');
-            projectModel.findByIdAndUpdate(projectId, update)
+            projectModel.findByIdAndUpdate(projectId, update, {new:true})
                 .then((projectUpdated)=>{
                     if(!projectUpdated) return res.status(404).send({message:'No se puede realizar la accion'});
                     return res.status(200).send({project:projectUpdated});
@@ -122,36 +123,44 @@ var controller = {
         uploadImage: function(req, res){
             //return res.status(200).send({message: 'nothing yet!!!'}) ;
             let projectId = req.params['id'];
-            let fileName = 'Imagen aun no subida...';
+            let file_Name = 'Imagen aun no subida...';
+            let extension = file_Name.split('\.')[0];
 
-            if (req.files){
-                let filePath = req.files['image']['path']
-                /*console.log(req.files);
-                return res.status(404).send({
-                    message: filePath
-                })*/
-                
-                let fileSplit = filePath.split('\\');
-                console.log(fileSplit);
-                let file_Name = fileSplit[1];
-
-                projectModel.findById(projectId)
-                // necesito hacer un findByIdandUpdate!!!
-                .then((project)=>{
-                    if(!project) return res.status(404).send({message: 'Error, projecto no encontrado'});
-                    return res.status(200).send({
-                        image: project
+            if (extension == 'png' || extension == 'jpg' || extension == 'jpeg' || extension == 'gif'){
+                // es un archivo de imagen
+                if (req.files){
+                    let filePath = req.files['image']['path']          
+                    let fileSplit = filePath.split('\\');
+                    file_Name = fileSplit[1]; //nombre del archivo
+    
+                    projectModel.findByIdAndUpdate(projectId , {image: file_Name}, {new: true})
+                    /* (filtro, valor a actualizar, new:True->)
+                    permite devolver el documento actualizado
+                    */
+                    .then((project)=>{
+                        if(!project) return res.status(404).send({message: 'Error, projecto no encontrado'});
+                        return res.status(200).send({
+                            image: project
+                        })
                     })
-                })
-                .catch((err)=>{
-                    console.log('error en el proyecto...');
-                })
-                // findById---------------
+                    .catch((err)=>{
+                        console.log('error en el proyecto...');
+                    })
+                    // findById---------------
+                } else {
+                    return res.status(200).send({
+                        message: file_Name
+                    })
+                } 
             } else {
-                return res.status(200).send({
-                    message: fileName
-                })
-            }        
+                //fs
+                console.log('extension no valida');
+                fs.unlink(filePath, (err)=>{
+                    return res.status(200).send({message: 'La extension no es valida'});
+                }); 
+            }
+
+                   
         },
 };
 
